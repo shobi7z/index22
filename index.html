@@ -484,15 +484,15 @@
               <button class="delete-button" data-id="${order.id}">حذف</button>
             </div>
           `;
+          // Attach event listeners after element is in the DOM!
           ordersList.appendChild(card);
-        });
 
-        document.querySelectorAll('.edit-button').forEach(button => {
-          button.addEventListener('click', openEditModal);
-        });
-
-        document.querySelectorAll('.delete-button').forEach(button => {
-          button.addEventListener('click', deleteOrder);
+          // Attach delete event
+          card.querySelector('.delete-button').addEventListener('click', function(e) {
+            deleteOrder(e, order.id);
+          });
+          // Attach edit event
+          card.querySelector('.edit-button').addEventListener('click', openEditModal);
         });
       }
 
@@ -535,7 +535,6 @@
         const modalProductsGroup = document.getElementById('modalProductsGroup');
         modalProductsGroup.innerHTML = `<label>المنتجات المكررة:</label>`;
         let i = 1;
-        let hasAny = false;
         while (orderData[`productLink${i}`] || orderData[`productCount${i}`]) {
           const link = orderData[`productLink${i}`] || '';
           const count = orderData[`productCount${i}`] || '';
@@ -547,7 +546,6 @@
             </div>
           `;
           i++;
-          hasAny = true;
         }
         // Always add an empty row for new product
         modalProductsGroup.innerHTML += `
@@ -587,7 +585,6 @@
             products++;
           }
         }
-        // Remove old extra fields in Firestore if less than before (optional, for advanced use)
 
         const orderDoc = doc(db, "orders", orderId);
         await updateDoc(orderDoc, updatedData);
@@ -601,6 +598,15 @@
           loadOrders();
         }, 1200);
       });
+
+      // FIXED DELETE LOGIC: Use the ID passed from the button explicitly, not event bubbling!
+      async function deleteOrder(event, orderId) {
+        event.stopPropagation();
+        if (confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
+          await deleteDoc(doc(db, "orders", orderId));
+          loadOrders();
+        }
+      }
 
       function filterOrders() {
         const searchText = document.getElementById('searchInput').value.toLowerCase();
