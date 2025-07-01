@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الطلبات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', Arial, sans-serif;
+            background: linear-gradient(135deg, #e3f0ff 0%, #fafcff 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            color: #222;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 40px auto 0 auto;
+            background: #fff;
+            padding: 35px 30px 30px 30px;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.09);
+        }
+        h1 {
+            text-align: center;
+            font-weight: 700;
+            color: #1e78f8;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+        .add-order-link {
+            display: inline-block;
+            margin: 0 auto 30px auto;
+            padding: 10px 32px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #1e78f8 60%, #4ec4ec 100%);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(30, 120, 248, 0.08);
+            text-align: center;
+        }
+        .add-order-link:hover {
+            background: linear-gradient(90deg, #1671d8 30%, #31b2e0 100%);
+            box-shadow: 0 4px 16px rgba(30, 120, 248, 0.18);
+            text-decoration: none;
+        }
+        .search-container {
+            margin-bottom: 28px;
+            text-align: center;
+        }
+        .search-container input {
+            padding: 12px 18px;
+            border-radius: 7px;
+            border: 1.5px solid #e0e7ef;
+            font-size: 17px;
+            width: 100%;
+            max-width: 440px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(30, 120, 248, 0.05);
+            transition: border 0.2s;
+        }
+        .search-container input:focus {
+            border: 1.5px solid #1e78f8;
+            outline: none;
+        }
+        #notification {
+            display: none;
+            color: #33b96a;
+            background: #e9fdf1;
+            border: 1px solid #c1f2d7;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 0 auto 22px auto;
+            padding: 12px;
+            width: fit-content;
+            min-width: 220px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(51,185,106,0.08);
+        }
+        #ordersList {
+            margin-top: 14px;
+        }
+        .order-card {
+            background: #f9fbfd;
+            border: 1.5px solid #e3e9f5;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            padding: 22px 22px 14px 22px;
+            box-shadow: 0 2px 6px 0 rgba(30, 120, 248, 0.03);
+            transition: box-shadow 0.2s, border 0.2s;
+            position: relative;
+        }
+        .order-card:hover {
+            border: 1.5px solid #1e78f8;
+            box-shadow: 0 8px 26px 0 rgba(30, 120, 248, 0.13);
+        }
+        .order-card h2 {
+            margin: 0 0 12px 0;
+            font-size: 22px;
+            color: #2266a2;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        .order-details-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 38px;
+            margin-bottom: 10px;
+        }
+        .details {
+            flex: 1 1 180px;
+            font-size: 15.5px;
+            margin-bottom: 4px;
+            color: #394b63;
+        }
+        .details strong {
+            color: #1e78f8;
+            font-weight: 700;
+            padding-left: 2px;
+        }
+        .repeated-products-list {
+            margin: 0 0 0 0;
+            padding: 0 0 0 0;
+        }
+        .repeated-product-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 6px;
+            font-size: 15.5px;
+        }
+        .repeated-product-label {
+            color: #2266a2;
+            font-weight: 700;
+            min-width: 110px;
+        }
+        .repeated-product-link {
+            color: #1e78f8;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 8px;
+            margin-right: 4px;
+        }
+        .repeated-product-count {
+            color: #394b63;
+            font-weight: 600;
+            background: #e3f0ff;
+            border-radius: 6px;
+            padding: 2px 12px;
+            font-size: 15px;
+            margin-right: 8px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 14px;
+        }
+        .action-buttons button {
+            padding: 8px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 15.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .edit-button {
+            background: linear-gradient(90deg, #1e78f8 60%, #4ec4ec 100%);
+            color: #fff;
+        }
+        .edit-button:hover {
+            background: linear-gradient(90deg, #1671d8 0%, #1e78f8 100%);
+            box-shadow: 0 2px 8px rgba(30, 120, 248, 0.10);
+        }
+        .delete-button {
+            background: linear-gradient(90deg, #f44336 60%, #ff867f 100%);
+            color: #fff;
+        }
+        .delete-button:hover {
+            background: linear-gradient(90deg, #c62828 0%, #f44336 100%);
+            box-shadow: 0 2px 8px rgba(244,67,54,0.11);
+        }
+        /* MODAL STYLES */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            overflow: auto;
+            background: rgba(30, 120, 248, 0.09);
+            padding-top: 40px;
+        }
+        .modal-content {
+            background: #fff;
+            margin: 2% auto;
+            border-radius: 16px;
+            padding: 32px 36px 24px 36px;
+            border: 1.5px solid #e3e9f5;
+            width: 95%;
+            max-width: 540px;
+            box-shadow: 0 12px 40px 0 rgba(30, 120, 248, 0.13);
+            position: relative;
+            animation: modalShow 0.3s;
+        }
+        @keyframes modalShow {
+            from {transform: translateY(60px); opacity: 0;}
+            to {transform: translateY(0); opacity: 1;}
+        }
+        .close {
+            color: #aaa;
+            position: absolute;
+            left: 18px;
+            top: 13px;
+            font-size: 36px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close:hover,
+        .close:focus {
+            color: #f44336;
+        }
+        .modal h2 {
+            margin: 0 0 18px 0;
+            color: #1e78f8;
+            font-weight: 700;
+            text-align: center;
+        }
+        .modal-form-group {
+            margin-bottom: 16px;
+        }
+        .modal-form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #394b63;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .modal-form-group input,
+        .modal-form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1.5px solid #e3e9f5;
+            background: #f9fbfd;
+            font-size: 15.5px;
+            transition: border 0.2s;
+            box-sizing: border-box;
+        }
+        .modal-form-group input:focus,
+        .modal-form-group select:focus {
+            border: 1.5px solid #1e78f8;
+            outline: none;
+            background: #fff;
+        }
+        .modal-products-group {
+            padding: 10px 0 0 0;
+        }
+        .modal-product-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .modal-product-row input[type="text"] {
+            flex: 2 1 60%;
+            min-width: 80px;
+        }
+        .modal-product-row input[type="number"] {
+            flex: 1 1 25%;
+            min-width: 50px;
+        }
+        .modal-product-label {
+            color: #2266a2;
+            font-weight: 600;
+            min-width: 92px;
+            font-size: 15px;
+        }
+        .modal button[type="submit"] {
+            background: linear-gradient(90deg, #33b96a 70%, #7cdba2 100%);
+            color: #fff;
+            margin-top: 18px;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 12px 0;
+            border-radius: 7px;
+            width: 100%;
+            transition: background 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .modal button[type="submit"]:hover {
+            background: linear-gradient(90deg, #28a45a 30%, #33b96a 100%);
+            box-shadow: 0 2px 8px rgba(51,185,106,0.10);
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 13px 4px;
+            }
+            .order-card {
+                padding: 8px 6px 12px 6px;
+            }
+            .modal-content {
+                padding: 14px 3px 16px 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>إدارة الطلبات</h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="🔍 بحث عن طلبات...">
+        </div>
+        <div id="notification"></div>
+        <div id="ordersList">
+            <!-- Order cards will be inserted here dynamically -->
+        </div>
+    </div>
+
+    <!-- Modal for Editing Order -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" title="إغلاق">&times;</span>
+            <h2>تعديل الطلب</h2>
+            <form id="editForm" autocomplete="off">
+                <input type="hidden" id="orderId">
+                <div class="modal-form-group">
+                    <label>رقم الشحنة:</label>
+                    <input type="text" id="orderNumber">
+                </div>
+                <div class="modal-form-group">
+                    <label>يوزر الزبون:</label>
+                    <input type="text" id="customerUsername">
+                </div>
+                <div class="modal-form-group">
+                    <label>رابط العربة:</label>
+                    <input type="text" id="cartLink">
+                </div>
+                <div class="modal-form-group">
+                    <label>المحافظة:</label>
+                    <select id="province">
+                        <option value="Baghdad">بغداد</option>
+                        <option value="Basra">البصرة</option>
+                        <option value="Nineveh">نينوى</option>
+                        <option value="Karbala">كربلاء</option>
+                        <option value="Najaf">النجف</option>
+                        <option value="Dhi Qar">ذي قار</option>
+                        <option value="Erbil">أربيل</option>
+                        <option value="Sulaymaniyah">السليمانية</option>
+                        <option value="Dohuk">دهوك</option>
+                        <option value="Salah ad-Din">صلاح الدين</option>
+                        <option value="Anbar">الأنبار</option>
+                        <option value="Al-Muthanna">المثنى</option>
+                        <option value="Qadisiyyah">القادسية</option>
+                        <option value="Babil">بابيل</option>
+                        <option value="Wasit">واسط</option>
+                        <option value="Maysan">الميسان</option>
+                        <option value="Kirkuk">كركوك</option>
+                        <option value="Diyala">ديالى</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label>العنوان:</label>
+                    <input type="text" id="address">
+                </div>
+                <div class="modal-form-group">
+                    <label>رقم الهاتف الأول:</label>
+                    <input type="text" id="phone1">
+                </div>
+                <div class="modal-form-group">
+                    <label>رقم الهاتف الثاني:</label>
+                    <input type="text" id="phone2">
+                </div>
+                <div class="modal-form-group">
+                    <label>السعر الكلي:</label>
+                    <input type="number" id="totalPrice">
+                </div>
+                <div class="modal-form-group modal-products-group" id="modalProductsGroup">
+                    <label>المنتجات المكررة:</label>
+                    <!-- Product fields will be filled here by JS -->
+                </div>
+                <button type="submit">💾 حفظ التعديلات</button>
+            </form>
+        </div>
+    </div>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+      import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBI6VNgwCKdG2X52wC2b20t7or8p4rjFB8",
+        authDomain: "vndr11.firebaseapp.com",
+        projectId: "vndr11",
+        storageBucket: "vndr11.appspot.com",
+        messagingSenderId: "411092840558",
+        appId: "1:411092840558:web:5d38f8a50d5eaada2a767f",
+        measurementId: "G-77M15Z0H07"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      let allOrders = [];
+
+      async function loadOrders() {
+        const ordersCollection = collection(db, "orders");
+        const ordersSnapshot = await getDocs(ordersCollection);
+        allOrders = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        displayOrders(allOrders);
+      }
+
+      function displayOrders(orders) {
+        const ordersList = document.getElementById('ordersList');
+        ordersList.innerHTML = '';
+
+        if (orders.length === 0) {
+          ordersList.innerHTML = `<div style="text-align:center;color:#b2bbc6;font-size:18px;padding:36px 0">لا توجد طلبات مطابقة.</div>`;
+          return;
+        }
+
+        orders.forEach(order => {
+          const card = document.createElement('div');
+          card.classList.add('order-card');
+          
+          // --- Repeated products dynamic render ---
+          let productRows = '';
+          let i = 1;
+          while (order[`productLink${i}`] || order[`productCount${i}`]) {
+            const link = order[`productLink${i}`];
+            const count = order[`productCount${i}`];
+            if (link || count) {
+              productRows += `
+                <div class="repeated-product-row">
+                  <span class="repeated-product-label">منتج مكرر ${i}:</span>
+                  ${
+                    link
+                      ? `<a class="repeated-product-link" href="${link}" target="_blank">عرض</a>`
+                      : `<span class="repeated-product-link" style="color:#b2bbc6;cursor:not-allowed;text-decoration:none;">لا يوجد</span>`
+                  }
+                  <span class="repeated-product-count">${count ? count : '-'}</span>
+                </div>
+              `;
+            }
+            i++;
+          }
+
+          // --- Customer username as a link if it looks like a URL ---
+          let customerUsernameContent = '-';
+          if (order.customerUsername) {
+            if (
+              order.customerUsername.startsWith('http://') ||
+              order.customerUsername.startsWith('https://')
+            ) {
+              customerUsernameContent = `<a href="${order.customerUsername}" target="_blank" style="color:#1e78f8;text-decoration:underline;font-weight:600;">عرض</a>`;
+            } else {
+              customerUsernameContent = order.customerUsername;
+            }
+          }
+
+          card.innerHTML = `
+            <h2>طلب رقم ${order.orderNumber}</h2>
+            <div class="order-details-group">
+                <div class="details"><strong>يوزر الزبون:</strong> ${customerUsernameContent}</div>
+                <div class="details"><strong>رابط العربة:</strong> <a href="${order.cartLink || '#'}" target="_blank" style="color:#1e78f8;text-decoration:underline;">${order.cartLink ? 'عرض' : '-'}</a></div>
+                <div class="details"><strong>المحافظة:</strong> ${order.province || '-'}</div>
+                <div class="details"><strong>العنوان:</strong> ${order.address || '-'}</div>
+                <div class="details"><strong>الهاتف الأول:</strong> ${order.phone1 || '-'}</div>
+                <div class="details"><strong>الهاتف الثاني:</strong> ${order.phone2 || '-'}</div>
+                <div class="details"><strong>السعر الكلي:</strong> ${order.totalPrice || '-'}</div>
+            </div>
+            <div class="repeated-products-list">
+                ${productRows}
+            </div>
+            <div class="action-buttons">
+              <button class="edit-button" data-id="${order.id}">تعديل</button>
+              <button class="delete-button" data-id="${order.id}">حذف</button>
+            </div>
+          `;
+          ordersList.appendChild(card);
+        });
+
+        document.querySelectorAll('.edit-button').forEach(button => {
+          button.addEventListener('click', openEditModal);
+        });
+
+        document.querySelectorAll('.delete-button').forEach(button => {
+          button.addEventListener('click', deleteOrder);
+        });
+      }
+
+      // Modal logic
+      function openEditModal(event) {
+        const orderId = event.target.getAttribute('data-id');
+        document.getElementById('editModal').style.display = 'block';
+        populateEditForm(orderId);
+      }
+      function closeModal() {
+        document.getElementById('editModal').style.display = 'none';
+      }
+      document.querySelector('.close').addEventListener('click', closeModal);
+      window.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeModal();
+      });
+      window.addEventListener('click', e => {
+        if (e.target === document.getElementById('editModal')) closeModal();
+      });
+
+      // Fill modal form with order data
+      async function populateEditForm(orderId) {
+        const orderDoc = doc(db, "orders", orderId);
+        const orderSnapshot = await getDoc(orderDoc);
+        if (!orderSnapshot.exists()) return;
+
+        const orderData = orderSnapshot.data();
+
+        document.getElementById('orderId').value = orderId;
+        document.getElementById('orderNumber').value = orderData.orderNumber || '';
+        document.getElementById('customerUsername').value = orderData.customerUsername || '';
+        document.getElementById('cartLink').value = orderData.cartLink || '';
+        document.getElementById('province').value = orderData.province || '';
+        document.getElementById('address').value = orderData.address || '';
+        document.getElementById('phone1').value = orderData.phone1 || '';
+        document.getElementById('phone2').value = orderData.phone2 || '';
+        document.getElementById('totalPrice').value = orderData.totalPrice || '';
+
+        // Fill repeated products
+        const modalProductsGroup = document.getElementById('modalProductsGroup');
+        modalProductsGroup.innerHTML = `<label>المنتجات المكررة:</label>`;
+        let i = 1;
+        let hasAny = false;
+        while (orderData[`productLink${i}`] || orderData[`productCount${i}`]) {
+          const link = orderData[`productLink${i}`] || '';
+          const count = orderData[`productCount${i}`] || '';
+          modalProductsGroup.innerHTML += `
+            <div class="modal-product-row">
+                <span class="modal-product-label">منتج مكرر ${i}:</span>
+                <input type="text" class="modal-product-link" name="productLink${i}" value="${link}" placeholder="رابط المنتج">
+                <input type="number" class="modal-product-count" name="productCount${i}" value="${count}" placeholder="العدد">
+            </div>
+          `;
+          i++;
+          hasAny = true;
+        }
+        // Always add an empty row for new product
+        modalProductsGroup.innerHTML += `
+          <div class="modal-product-row">
+              <span class="modal-product-label">منتج مكرر ${i}:</span>
+              <input type="text" class="modal-product-link" name="productLink${i}" placeholder="رابط المنتج">
+              <input type="number" class="modal-product-count" name="productCount${i}" placeholder="العدد">
+          </div>
+        `;
+      }
+
+      // Handle update
+      document.getElementById('editForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const orderId = document.getElementById('orderId').value;
+        if (!orderId) return;
+
+        const updatedData = {
+          orderNumber: document.getElementById('orderNumber').value,
+          customerUsername: document.getElementById('customerUsername').value,
+          cartLink: document.getElementById('cartLink').value,
+          province: document.getElementById('province').value,
+          address: document.getElementById('address').value,
+          phone1: document.getElementById('phone1').value,
+          phone2: document.getElementById('phone2').value,
+          totalPrice: document.getElementById('totalPrice').value,
+        };
+
+        // Collect repeated products dynamically
+        const productLinks = Array.from(document.querySelectorAll('.modal-product-link')).map(i => i.value.trim());
+        const productCounts = Array.from(document.querySelectorAll('.modal-product-count')).map(i => i.value.trim());
+        let products = 0;
+        for(let i=0; i<productLinks.length; i++) {
+          if(productLinks[i] !== "" && productCounts[i] !== "") {
+            updatedData[`productLink${i+1}`] = productLinks[i];
+            updatedData[`productCount${i+1}`] = productCounts[i];
+            products++;
+          }
+        }
+        // Remove old extra fields in Firestore if less than before (optional, for advanced use)
+
+        const orderDoc = doc(db, "orders", orderId);
+        await updateDoc(orderDoc, updatedData);
+
+        document.getElementById('notification').textContent = 'تم تعديل الطلب بنجاح';
+        document.getElementById('notification').style.display = 'block';
+
+        setTimeout(() => {
+          closeModal();
+          document.getElementById('notification').style.display = 'none';
+          loadOrders();
+        }, 1200);
+      });
+
+      function filterOrders() {
+        const searchText = document.getElementById('searchInput').value.toLowerCase();
+        const filteredOrders = allOrders.filter(order =>
+          (order.orderNumber || "").toLowerCase().includes(searchText) ||
+          (order.customerUsername || "").toLowerCase().includes(searchText) ||
+          (order.cartLink || "").toLowerCase().includes(searchText) ||
+          (order.province || "").toLowerCase().includes(searchText) ||
+          (order.address || "").toLowerCase().includes(searchText) ||
+          (order.phone1 || "").toLowerCase().includes(searchText) ||
+          (order.phone2 || "").toLowerCase().includes(searchText) ||
+          (order.totalPrice ? order.totalPrice.toString().toLowerCase() : "").includes(searchText)
+        );
+        displayOrders(filteredOrders);
+      }
+      document.getElementById('searchInput').addEventListener('input', filterOrders);
+
+      loadOrders();
+    </script>
+</body>
+</html>
